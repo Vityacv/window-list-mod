@@ -1,0 +1,110 @@
+--- stylesheet.css	2017-07-20 02:01:51.000000000 +0300
++++ stylesheet.css.new	2017-09-17 17:33:47.721254000 +0300
+@@ -3,6 +3,7 @@
+      .window-button vertical padding +
+      .window-button > StWidget vertical padding) */
+   height: 2.25em;
++  /*background-color: rgba(47, 52, 64, 1.0);*/
+ }
+ 
+ .window-list {
+@@ -11,15 +12,15 @@
+ }
+ 
+ .window-button {
+-  padding: 1px;
++  padding: 0px;
+ }
+ 
+ .window-button:first-child:ltr {
+-  padding-left: 2px;
++  padding-left: 0px;
+ }
+ 
+ .window-button:last-child:rtl {
+-  padding-right: 2px;
++  padding-right: 0px;
+ }
+ 
+ .window-button-box {
+@@ -27,56 +28,66 @@
+ }
+ 
+ .window-button > StWidget {
+-  -st-natural-width: 18.75em;
++  -st-natural-width: 10.75em;
++  max-width: 18.75em;
++  color: #bbb;
++  background-color: rgba(0,0,0,0.0);
++  border-radius: 0px;
++  padding: 3px 6px 1px;
++  /*-st-natural-width: 18.75em;
+   max-width: 18.75em;
+   color: #bbb;
+   background-color: black;
+   border-radius: 4px;
+   padding: 3px 6px 1px;
+   box-shadow: inset 1px 1px 4px rgba(255,255,255,0.5);
+-  text-shadow: 1px 1px 4px rgba(0,0,0,0.8);
++  text-shadow: 1px 1px 4px rgba(0,0,0,0.8);*/
+ }
+ 
+ .window-button:hover > StWidget {
+   color: white;
+-  background-color: #1f1f1f;
++  background-color: rgba(0, 0, 0, 0.2);
++  /*background-color: #1f1f1f;*/
+ }
+ 
+ .window-button:active > StWidget,
+ .window-button:focus > StWidget {
+-  box-shadow: inset 2px 2px 4px rgba(255,255,255,0.5);
++  /*box-shadow: inset 2px 2px 4px rgba(255,255,255,0.5);*/
+ }
+ 
+ .window-button.focused > StWidget {
+   color: white;
+-  box-shadow: inset 1px 1px 4px rgba(255,255,255,0.7);
++  background-color: rgba(82, 148, 226, 1.0);
++  border: 1px solid #101010;
++  /*color: white;
++  box-shadow: inset 1px 1px 4px rgba(255,255,255,0.7);*/
+ }
+ 
+ .window-button.focused:active > StWidget {
+-  box-shadow: inset 2px 2px 4px rgba(255,255,255,0.7);
++  /*box-shadow: inset 2px 2px 4px rgba(255,255,255,0.7);*/
+ }
+ 
+ .window-button.minimized > StWidget {
+-  color: #666;
+-  box-shadow: inset -1px -1px 4px rgba(255,255,255,0.5);
++  /*color: #666;
++  box-shadow: inset -1px -1px 4px rgba(255,255,255,0.5);*/
+ }
+ 
+ .window-button.minimized:active > StWidget {
+-  box-shadow: inset -2px -2px 4px rgba(255,255,255,0.5);
++  /*box-shadow: inset -2px -2px 4px rgba(255,255,255,0.5);*/
+ }
+ 
+ .window-button-icon {
+-  width: 24px;
+-  height: 24px;
++  width: 16px;
++  height: 16px;
+ }
+ 
+ .window-list-workspace-indicator {
+-  padding: 3px;
++  padding: 0px;
+ }
+ 
+ .window-list-workspace-indicator > StWidget {
+-  background-color: rgba(200, 200, 200, .3);
+-  border: 1px solid #cccccc;
++  background-color: rgba(0, 0, 0, 1.);
++  /*border: 1px solid #cccccc;*/
+ }
+ 
+ .notification {
