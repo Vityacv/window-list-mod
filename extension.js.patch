@@ -1,5 +1,5 @@
 --- extension.js	2017-07-20 02:01:51.000000000 +0300
-+++ extension.js.new	2017-09-17 17:30:49.375553000 +0300
++++ extension.js.new	2017-09-17 23:16:26.837327000 +0300
 @@ -19,7 +19,11 @@
  const Gettext = imports.gettext.domain('gnome-shell-extensions');
  const _ = Gettext.gettext;
@@ -13,18 +13,48 @@
  const DND_ACTIVATE_TIMEOUT = 500;
  
  const GroupingMode = {
-@@ -152,7 +156,9 @@
+@@ -152,7 +156,8 @@
          this.actor = new St.BoxLayout({ style_class: 'window-button-box',
                                          x_expand: true, y_expand: true });
  
 -        this._icon = new St.Bin({ style_class: 'window-button-icon' });
 +        this._icon = new St.Bin({ //style_class: 'window-button-icon' 
 +    });
-+        //this._icon.set_style("width: "+this._iconSize+"px;height: "+this._iconSize+"px;");
          this.actor.add(this._icon);
          this.label_actor = new St.Label({ y_align: Clutter.ActorAlign.CENTER });
          this.actor.add(this.label_actor);
-@@ -229,7 +235,6 @@
+@@ -178,6 +183,30 @@
+             this._metaWindow.connect('notify::minimized',
+                                     Lang.bind(this, this._minimizedChanged));
+         this._minimizedChanged();
++        this._notifyUrgentId =
++            this._metaWindow.connect('notify::urgent',
++                                    Lang.bind(this, this._urgentChanged));
++        this._notifyDemandAttentionId =
++            this._metaWindow.connect('notify::demand-attention',
++                                    Lang.bind(this, this._demandAttentionChanged));
++    },
++
++    _urgentChanged: function() {
++        if(this._metaWindow.urgent)
++            this.actor.get_parent().get_parent().set_style('color: white;\
++  background-color: rgba(206, 92, 0, 1.0);\
++  border: 1px solid #101010;');
++        else
++            this.actor.get_parent().get_parent().set_style('');
++    },
++
++    _demandAttentionChanged: function() {
++        if(this._metaWindow.demand-attention)
++            this.actor.set_style('color: white;\
++  background-color: rgba(180, 0, 0, 1.0);\
++  border: 1px solid #101010;');
++        else
++            this.actor.set_style('');
+     },
+ 
+     _minimizedChanged: function() {
+@@ -229,7 +258,6 @@
                                       button_mask: St.ButtonMask.ONE |
                                                    St.ButtonMask.THREE });
          this.actor._delegate = this;
@@ -32,7 +62,7 @@
          this.actor.connect('allocation-changed',
                             Lang.bind(this, this._updateIconGeometry));
          this.actor.connect('clicked', Lang.bind(this, this._onClicked));
-@@ -501,7 +506,7 @@
+@@ -501,7 +529,7 @@
                                                      x_expand: true });
          stack.add_actor(this._multiWindowTitle);
  
@@ -41,14 +71,17 @@
                                    child: app.create_icon_texture(ICON_TEXTURE_SIZE) });
          this._multiWindowTitle.add(this._icon);
  
-@@ -782,6 +787,29 @@
+@@ -782,6 +810,34 @@
      }
  });
  
 +
 +function enablePanel(bEnable){
++/*    for(var propertyName in global.display) {
++                global.log(propertyName);
++            }*/
 +  if(bEnable){
-+   Main.panel.actor.remove_actor(Main.panel._leftBox);
++   //Main.panel.actor.remove_actor(Main.panel._leftBox);
 +   Main.panel.actor.remove_actor(Main.panel._centerBox);
 +   Main.panel.actor.remove_actor(Main.panel._rightBox);
 +   Main.panel.actor.height = 6;
@@ -61,17 +94,19 @@
 +   gbox.remove_actor(Main.panel._rightBox);
 +   Main.panel.actor.height = panelh;
 +   Main.panel.actor.set_opacity(panelOpacity);
-+   Main.panel.actor.add_actor(Main.panel._leftBox);
++   //Main.panel.actor.add_actor(Main.panel._leftBox);
 +   Main.panel.actor.add_actor(Main.panel._centerBox);
 +   Main.panel.actor.add_actor(Main.panel._rightBox);
-+   
 +  }
++    let windows = global.get_window_actors();
++    for (let i = 0; i < windows.length; i++)
++            windows[i].metaWindow.notify('gtk-application-id');
 +}
 +
  const WindowList = new Lang.Class({
      Name: 'WindowList',
  
-@@ -797,10 +825,13 @@
+@@ -797,10 +853,13 @@
          this.actor.connect('destroy', Lang.bind(this, this._onDestroy));
  
          let box = new St.BoxLayout({ x_expand: true, y_expand: true });
@@ -86,7 +121,7 @@
                                             reactive: true,
                                             layout_manager: layout,
                                             x_align: Clutter.ActorAlign.START,
-@@ -813,10 +844,14 @@
+@@ -813,10 +872,14 @@
                  let node = this._windowList.get_theme_node();
                  let spacing = node.get_length('spacing');
                  this._windowList.layout_manager.spacing = spacing;
@@ -102,7 +137,7 @@
          box.add(indicatorsBox);
  
          this._workspaceIndicator = new WorkspaceIndicator();
-@@ -878,12 +913,14 @@
+@@ -878,17 +941,22 @@
              Main.overview.connect('showing', Lang.bind(this, function() {
                  this.actor.hide();
                  this._updateKeyboardAnchor();
@@ -117,7 +152,15 @@
              }));
  
          this._fullscreenChangedId =
-@@ -910,6 +947,21 @@
+             global.screen.connect('in-fullscreen-changed', Lang.bind(this, function() {
+                 this._updateKeyboardAnchor();
++                let windows = global.get_window_actors();
++    for (let i = 0; i < windows.length; i++)
++            windows[i].metaWindow.notify('gtk-application-id');
+             }));
+ 
+         this._dragBeginId =
+@@ -910,6 +978,18 @@
                                     Lang.bind(this, this._groupingModeChanged));
          this._grouped = undefined;
          this._groupingModeChanged();
@@ -133,13 +176,10 @@
 +        this._settings.connect('changed::panel-color',
 +                                   Lang.bind(this, this._panelColorChanged));
 +        this._panelColorChanged();
-+        this._settings.connect('changed::button-color',
-+                                   Lang.bind(this, this._buttonColorChanged));
-+        this._buttonColorChanged();
      },
  
      _getDynamicWorkspacesSettings: function() {
-@@ -952,7 +1004,7 @@
+@@ -952,7 +1032,7 @@
  
      _updatePosition: function() {
          this.actor.set_position(this._monitor.x,
@@ -148,7 +188,7 @@
      },
  
      _updateWorkspaceIndicatorVisibility: function() {
-@@ -1002,6 +1054,40 @@
+@@ -1002,6 +1082,30 @@
          }
      },
  
@@ -165,16 +205,10 @@
 +
 +    _iconSizeChanged: function() {
 +        this._iconSize = this._settings.get_int('icon-size');
-+
 +        ICON_TEXTURE_SIZE = this._iconSize;
-+        let children = this._windowList.get_children();
-+        for (let i = 0; i < children.length; i++) {
-+            children[i]._delegate.metaWindow.notify('gtk-application-id');
-+            //children[i]._delegate._textureCache=0;
-+            /*for(var propertyName in children[i]._delegate._textureCache) {
-+                global.log(propertyName);
-+            }*/
-+        }
++        let windows = global.get_window_actors();
++        for (let i = 0; i < windows.length; i++)
++            windows[i].metaWindow.notify('gtk-application-id');
 +    },
 +
 +    _panelColorChanged: function() {
@@ -182,14 +216,10 @@
 +        this.actor.set_style("background-color: "+this._panelColor+";");
 +    },
 +
-+    _buttonColorChanged: function() {
-+        this._buttonColor = this._settings.get_string('button-color');
-+    },
-+
      _checkGrouping: function() {
          if (this._groupingMode != GroupingMode.AUTO)
              return;
-@@ -1201,6 +1287,10 @@
+@@ -1201,6 +1305,10 @@
      },
  
      _onDestroy: function() {
