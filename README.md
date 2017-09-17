@@ -3,4 +3,4 @@ In this repository patch for original window list extension of gnome 3 by gcampa
 # description
 Display a window list at the top of the screen.
 This extension is mod of extension "Window list" that part of Classic Mode.
-Package gnome-shell-extensions is required
+<s>Package gnome-shell-extensions is required</s>
