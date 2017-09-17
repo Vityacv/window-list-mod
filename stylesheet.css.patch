@@ -1,5 +1,5 @@
 --- stylesheet.css	2017-07-20 02:01:51.000000000 +0300
-+++ stylesheet.css.new	2017-09-17 17:33:47.721254000 +0300
++++ stylesheet.css.new	2017-09-17 22:11:56.194963000 +0300
 @@ -3,6 +3,7 @@
       .window-button vertical padding +
       .window-button > StWidget vertical padding) */
