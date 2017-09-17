@@ -1,5 +1,5 @@
 --- prefs.js	2016-07-29 08:03:34.000000000 +0300
-+++ prefs.js.new	2017-09-17 17:18:37.496185000 +0300
++++ prefs.js.new	2017-08-14 10:50:47.200314000 +0300
 @@ -2,24 +2,22 @@
  
  const Gio = imports.gi.Gio;
@@ -51,7 +51,7 @@
          };
  
          let radio = null;
-@@ -72,10 +70,139 @@
+@@ -72,10 +70,125 @@
              }));
          }
  
@@ -175,20 +175,6 @@
 +            config.set_string("panel-color",sw.rgba.to_string());
 +            });
 +        }
-+        /*{
-+        	let color = new Gtk.ColorButton();
-+        	let rgba = new Gdk.RGBA();
-+        	rgba.parse(config.get_string("button-color"));
-+        	color.set_rgba(rgba);
-+        	let hbox = new Gtk.Box({
-+            orientation: Gtk.Orientation.HORIZONTAL,
-+            spacing: 20
-+            });
-+            hbox.add(new Gtk.Label({ label: "Button color:	", use_markup: true,
-+                halign: Gtk.Align.START }));
-+            hbox.add(color);
-+        	this.add(hbox);
-+        }*/
      }
  });
  
