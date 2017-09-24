@@ -1,0 +1,55 @@
+<schemalist>
+  <enum id="org.gnome.shell.extensions.window-list-mod.GroupingMode">
+    <value value="0" nick="never"/>
+    <value value="1" nick="auto"/>
+    <value value="2" nick="always"/>
+  </enum>
+  <schema id="org.gnome.shell.extensions.window-list-mod"
+          path="/org/gnome/shell/extensions/window-list-mod/">
+    <key name="grouping-mode"
+         enum="org.gnome.shell.extensions.window-list-mod.GroupingMode">
+      <default>'never'</default>
+      <summary>When to group windows</summary>
+      <description>
+        Decides when to group windows from the same application on the
+        window list. Possible values are “never”, “auto” and “always”.
+      </description>
+    </key>
+    <key name="show-on-all-monitors" type="b">
+      <default>false</default>
+      <summary>Show the window list on all monitors</summary>
+      <description>
+        Whether to show the window list on all connected monitors or
+        only on the primary one.
+      </description>
+    </key>
+    <key name="font-size" type="i">
+      <default>8</default>
+      <summary>Font size in panel</summary>
+      <description>
+        Set the size that you want.
+      </description>
+    </key>
+    <key name="panel-height" type="i">
+      <default>24</default>
+      <summary>Set panel height</summary>
+      <description>
+        Set the panel height that you desire.
+      </description>
+    </key>
+    <key name="icon-size" type="i">
+      <default>16</default>
+      <summary>Set panel icons size</summary>
+      <description>
+        Set the panel icons which are you want
+      </description>
+    </key>
+    <key name="panel-color" type="s">
+      <default>'rgba(0,0,0,0.6)'</default>
+      <summary>Set panel color</summary>
+      <description>
+        Set the panel color
+      </description>
+    </key>
+  </schema>
+</schemalist>
