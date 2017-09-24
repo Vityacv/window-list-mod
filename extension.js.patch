@@ -1,5 +1,5 @@
---- extension.js	2017-07-20 02:01:51.000000000 +0300
-+++ extension.js.new	2017-09-17 23:16:26.837327000 +0300
+--- extension.js	2017-09-20 23:03:21.000000000 +0300
++++ extension.js.new	2017-09-24 21:42:51.887198000 +0300
 @@ -19,7 +19,11 @@
  const Gettext = imports.gettext.domain('gnome-shell-extensions');
  const _ = Gettext.gettext;
@@ -84,7 +84,7 @@
 +   //Main.panel.actor.remove_actor(Main.panel._leftBox);
 +   Main.panel.actor.remove_actor(Main.panel._centerBox);
 +   Main.panel.actor.remove_actor(Main.panel._rightBox);
-+   Main.panel.actor.height = 6;
++   Main.panel.actor.height = Convenience.getSettings().get_int('panel-height');
 +   Main.panel.actor.set_opacity(0);
 +   gbox.add_actor(Main.panel._rightBox);
 +   gbox.add_actor(Main.panel._centerBox);
