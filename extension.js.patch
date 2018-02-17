@@ -1,11 +1,12 @@
---- extension.js	2017-09-20 23:03:21.000000000 +0300
-+++ extension.js.new	2017-09-24 21:42:51.887198000 +0300
-@@ -19,7 +19,11 @@
+--- extension.js	2018-01-23 07:18:36.000000000 +0300
++++ extension.js.new	2018-02-17 22:50:39.000000000 +0300
+@@ -19,7 +19,12 @@
  const Gettext = imports.gettext.domain('gnome-shell-extensions');
  const _ = Gettext.gettext;
  
 -const ICON_TEXTURE_SIZE = 24;
 +var ICON_TEXTURE_SIZE = 16;
++var clock = 0;
 +var gbox = 0;
 +var bAdded = 0;
 +var panelh = 0;
@@ -13,7 +14,7 @@
  const DND_ACTIVATE_TIMEOUT = 500;
  
  const GroupingMode = {
-@@ -152,7 +156,8 @@
+@@ -152,7 +157,8 @@
          this.actor = new St.BoxLayout({ style_class: 'window-button-box',
                                          x_expand: true, y_expand: true });
  
@@ -23,7 +24,23 @@
          this.actor.add(this._icon);
          this.label_actor = new St.Label({ y_align: Clutter.ActorAlign.CENTER });
          this.actor.add(this.label_actor);
-@@ -178,6 +183,30 @@
+@@ -162,11 +168,11 @@
+             this._textureCache.connect('icon-theme-changed',
+                                        Lang.bind(this, this._updateIcon));
+         this._notifyWmClass =
+-            this._metaWindow.connect_after('notify::wm-class',
+-                                           Lang.bind(this, this._updateIcon));
++            this._metaWindow.connect('notify::wm-class',
++                                     Lang.bind(this, this._updateIcon));
+         this._notifyAppId =
+-            this._metaWindow.connect_after('notify::gtk-application-id',
+-                                           Lang.bind(this, this._updateIcon));
++            this._metaWindow.connect('notify::gtk-application-id',
++                                     Lang.bind(this, this._updateIcon));
+         this._updateIcon();
+ 
+         this.actor.connect('destroy', Lang.bind(this, this._onDestroy));
+@@ -178,6 +184,30 @@
              this._metaWindow.connect('notify::minimized',
                                      Lang.bind(this, this._minimizedChanged));
          this._minimizedChanged();
@@ -54,7 +71,7 @@
      },
  
      _minimizedChanged: function() {
-@@ -229,7 +258,6 @@
+@@ -229,7 +259,6 @@
                                       button_mask: St.ButtonMask.ONE |
                                                    St.ButtonMask.THREE });
          this.actor._delegate = this;
@@ -62,7 +79,7 @@
          this.actor.connect('allocation-changed',
                             Lang.bind(this, this._updateIconGeometry));
          this.actor.connect('clicked', Lang.bind(this, this._onClicked));
-@@ -501,7 +529,7 @@
+@@ -501,7 +530,7 @@
                                                      x_expand: true });
          stack.add_actor(this._multiWindowTitle);
  
@@ -71,7 +88,7 @@
                                    child: app.create_icon_texture(ICON_TEXTURE_SIZE) });
          this._multiWindowTitle.add(this._icon);
  
-@@ -782,6 +810,34 @@
+@@ -782,6 +811,41 @@
      }
  });
  
@@ -80,8 +97,13 @@
 +/*    for(var propertyName in global.display) {
 +                global.log(propertyName);
 +            }*/
++
 +  if(bEnable){
++   
++   Main.panel._centerBox.remove_actor(clock);
++   clock.set_parent(Main.panel._rightBox);
 +   //Main.panel.actor.remove_actor(Main.panel._leftBox);
++   Main.panel._centerBox.remove_actor(clock);
 +   Main.panel.actor.remove_actor(Main.panel._centerBox);
 +   Main.panel.actor.remove_actor(Main.panel._rightBox);
 +   Main.panel.actor.height = Convenience.getSettings().get_int('panel-height');
@@ -90,6 +112,8 @@
 +   gbox.add_actor(Main.panel._centerBox);
 +  }
 +  else{
++   Main.panel._rightBox.remove_actor(clock);
++   clock.set_parent(Main.panel._centerBox);
 +   gbox.remove_actor(Main.panel._centerBox);
 +   gbox.remove_actor(Main.panel._rightBox);
 +   Main.panel.actor.height = panelh;
@@ -106,11 +130,12 @@
  const WindowList = new Lang.Class({
      Name: 'WindowList',
  
-@@ -797,10 +853,13 @@
+@@ -797,10 +861,14 @@
          this.actor.connect('destroy', Lang.bind(this, this._onDestroy));
  
          let box = new St.BoxLayout({ x_expand: true, y_expand: true });
 +        gbox=box;
++	clock = Main.panel._centerBox.get_children()[0];
 +        panelh=Main.panel.actor.height;
 +        panelOpacity=Main.panel.actor.get_opacity()
          this.actor.add_actor(box);
@@ -121,7 +146,7 @@
                                             reactive: true,
                                             layout_manager: layout,
                                             x_align: Clutter.ActorAlign.START,
-@@ -813,10 +872,14 @@
+@@ -813,10 +881,14 @@
                  let node = this._windowList.get_theme_node();
                  let spacing = node.get_length('spacing');
                  this._windowList.layout_manager.spacing = spacing;
@@ -137,7 +162,7 @@
          box.add(indicatorsBox);
  
          this._workspaceIndicator = new WorkspaceIndicator();
-@@ -878,17 +941,22 @@
+@@ -878,17 +950,22 @@
              Main.overview.connect('showing', Lang.bind(this, function() {
                  this.actor.hide();
                  this._updateKeyboardAnchor();
@@ -160,7 +185,7 @@
              }));
  
          this._dragBeginId =
-@@ -910,6 +978,18 @@
+@@ -910,6 +987,18 @@
                                     Lang.bind(this, this._groupingModeChanged));
          this._grouped = undefined;
          this._groupingModeChanged();
@@ -179,7 +204,7 @@
      },
  
      _getDynamicWorkspacesSettings: function() {
-@@ -952,7 +1032,7 @@
+@@ -952,7 +1041,7 @@
  
      _updatePosition: function() {
          this.actor.set_position(this._monitor.x,
@@ -188,7 +213,7 @@
      },
  
      _updateWorkspaceIndicatorVisibility: function() {
-@@ -1002,6 +1082,30 @@
+@@ -1002,6 +1091,30 @@
          }
      },
  
@@ -219,7 +244,7 @@
      _checkGrouping: function() {
          if (this._groupingMode != GroupingMode.AUTO)
              return;
-@@ -1201,6 +1305,10 @@
+@@ -1201,6 +1314,10 @@
      },
  
      _onDestroy: function() {
