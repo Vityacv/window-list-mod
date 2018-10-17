@@ -1,19 +1,14 @@
---- prefs.js	2016-07-29 08:03:34.000000000 +0300
-+++ prefs.js.new	2017-08-14 10:50:47.200314000 +0300
-@@ -2,24 +2,22 @@
+--- prefs.js	2018-10-17 17:08:16.739094080 +0300
++++ prefs.js.new	2018-10-17 16:44:05.339606500 +0300
+@@ -2,6 +2,7 @@
  
  const Gio = imports.gi.Gio;
  const GObject = imports.gi.GObject;
 +const Gdk = imports.gi.Gdk;
  const Gtk = imports.gi.Gtk;
- const Lang = imports.lang;
  
--const Gettext = imports.gettext.domain('gnome-shell-extensions');
--const _ = Gettext.gettext;
--
- const ExtensionUtils = imports.misc.extensionUtils;
- const Me = ExtensionUtils.getCurrentExtension();
- const Convenience = Me.imports.convenience;
+ const Gettext = imports.gettext.domain('gnome-shell-extensions');
+@@ -13,7 +14,7 @@
  
  
  function init() {
@@ -21,15 +16,8 @@
 +    //Convenience.initTranslations();
  }
  
- const WindowListPrefsWidget = new GObject.Class({
--    Name: 'WindowList.Prefs.Widget',
--    GTypeName: 'WindowListPrefsWidget',
-+    Name: 'WindowListMod.Prefs.Widget',
-+    GTypeName: 'WindowListModPrefsWidget',
-     Extends: Gtk.Grid,
- 
-     _init: function(params) {
-@@ -29,7 +27,7 @@
+ const WindowListPrefsWidget = GObject.registerClass(
+@@ -25,7 +26,7 @@
          this.row_spacing = 6;
          this.orientation = Gtk.Orientation.VERTICAL;
  
@@ -38,7 +26,7 @@
          this.add(new Gtk.Label({ label: groupingLabel, use_markup: true,
                                   halign: Gtk.Align.START }));
  
-@@ -47,9 +45,9 @@
+@@ -43,9 +44,9 @@
          let modes = range.deep_unpack()[1].deep_unpack();
  
          let modeLabels = {
@@ -51,8 +39,8 @@
          };
  
          let radio = null;
-@@ -72,10 +70,125 @@
-             }));
+@@ -68,10 +69,125 @@
+             });
          }
  
 -        let check = new Gtk.CheckButton({ label: _("Show on all monitors"),
