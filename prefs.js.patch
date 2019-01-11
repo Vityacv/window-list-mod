@@ -1,5 +1,5 @@
---- prefs.js	2018-10-17 17:08:16.739094080 +0300
-+++ prefs.js.new	2018-10-17 16:44:05.339606500 +0300
+--- prefs.js	2019-01-10 23:07:50.539052581 -0800
++++ prefs.js.new	2019-01-10 23:56:06.198704923 -0800
 @@ -2,6 +2,7 @@
  
  const Gio = imports.gi.Gio;
@@ -8,43 +8,7 @@
  const Gtk = imports.gi.Gtk;
  
  const Gettext = imports.gettext.domain('gnome-shell-extensions');
-@@ -13,7 +14,7 @@
- 
- 
- function init() {
--    Convenience.initTranslations();
-+    //Convenience.initTranslations();
- }
- 
- const WindowListPrefsWidget = GObject.registerClass(
-@@ -25,7 +26,7 @@
-         this.row_spacing = 6;
-         this.orientation = Gtk.Orientation.VERTICAL;
- 
--        let groupingLabel = '<b>' + _("Window Grouping") + '</b>';
-+        let groupingLabel = '<b>' + ("Window Grouping") + '</b>';
-         this.add(new Gtk.Label({ label: groupingLabel, use_markup: true,
-                                  halign: Gtk.Align.START }));
- 
-@@ -43,9 +44,9 @@
-         let modes = range.deep_unpack()[1].deep_unpack();
- 
-         let modeLabels = {
--            'never': _("Never group windows"),
--            'auto': _("Group windows when space is limited"),
--            'always': _("Always group windows")
-+            'never': ("Never group windows"),
-+            'auto': ("Group windows when space is limited"),
-+            'always': ("Always group windows")
-         };
- 
-         let radio = null;
-@@ -68,10 +69,125 @@
-             });
-         }
- 
--        let check = new Gtk.CheckButton({ label: _("Show on all monitors"),
-+        let check = new Gtk.CheckButton({ label: ("Show on all monitors"),
+@@ -72,6 +73,131 @@
                                            margin_top: 6 });
          this._settings.bind('show-on-all-monitors', check, 'active', Gio.SettingsBindFlags.DEFAULT);
          this.add(check);
@@ -52,23 +16,26 @@
 +        let config = this._settings;
 +        {
 +            let adjustment = new Gtk.Adjustment({
-+			lower: 0,
-+			upper: 72,
-+			step_increment: 1.0
-+		});
++                lower: 0,
++                upper: 72,
++                step_increment: 1.0
++            });
 +            let scale = new Gtk.HScale({
-+			digits:0,
-+			adjustment: adjustment,
-+			value_pos: Gtk.PositionType.RIGHT
-+		});
++                digits:0,
++                adjustment: adjustment,
++                value_pos: Gtk.PositionType.RIGHT
++            });
 +            scale.set_value(config.get_int("font-size"));
 +
 +            let hbox = new Gtk.Box({
-+            orientation: Gtk.Orientation.HORIZONTAL,
-+            spacing: 20
++                orientation: Gtk.Orientation.HORIZONTAL,
++                spacing: 20
 +            });
-+                hbox.add(new Gtk.Label({ label: "Font size:	", use_markup: true,
-+                halign: Gtk.Align.START }));
++            hbox.add(new Gtk.Label({
++                label: "Font size:",
++                use_markup: true,
++                halign: Gtk.Align.START
++            }));
 +            hbox.pack_end(scale, true, true, 0);
 +            this.add(hbox);
 +            scale.connect('value-changed', function(sw) {
@@ -77,90 +44,97 @@
 +            if (newval != oldval) {
 +                config.set_int("font-size",newval);
 +            }
-+        });
++            });
 +        }
 +        {
 +            let adjustment = new Gtk.Adjustment({
-+            lower: 8,
-+            upper: 256,
-+            step_increment: 1.0
-+        });
++                lower: 8,
++                upper: 256,
++                step_increment: 1.0
++            });
 +            let scale = new Gtk.HScale({
-+            digits:0,
-+            adjustment: adjustment,
-+            value_pos: Gtk.PositionType.RIGHT
-+        });
++                digits:0,
++                adjustment: adjustment,
++                value_pos: Gtk.PositionType.RIGHT
++            });
 +            scale.set_value(config.get_int("panel-height"));
 +
 +            let hbox = new Gtk.Box({
-+            orientation: Gtk.Orientation.HORIZONTAL,
-+            spacing: 20
++                orientation: Gtk.Orientation.HORIZONTAL,
++                spacing: 20
 +            });
-+                hbox.add(new Gtk.Label({ label: "Panel height:	", use_markup: true,
-+                halign: Gtk.Align.START }));
++            hbox.add(new Gtk.Label({
++                label: "Panel height:",
++                use_markup: true,
++                halign: Gtk.Align.START
++            }));
 +            hbox.pack_end(scale, true, true, 0);
 +            this.add(hbox);
 +            scale.connect('value-changed', function(sw) {
-+            var newval = sw.get_value();
-+            var oldval = config.get_int("panel-height");
-+            var iconval = config.get_int("icon-size");
-+            let max=newval-8;
-+            if(max<8)
-+            	max=8;
-+            if (newval != oldval) {
-+            	config.set_int("icon-size",max);
-+                config.set_int("panel-height",newval);
-+            }
-+        });
++                var newval = sw.get_value();
++                var oldval = config.get_int("panel-height");
++                var iconval = config.get_int("icon-size");
++                let max = newval - 8;
++                if (max < 8) {
++                    max=8;
++                }
++                if (newval != oldval) {
++                    config.set_int("icon-size", max);
++                    config.set_int("panel-height", newval);
++                }
++            });
 +        }
 +        {
 +            let adjustment = new Gtk.Adjustment({
-+            lower: 0,
-+            upper: 256,
-+            step_increment: 1.0
-+        });
++                lower: 0,
++                upper: 256,
++                step_increment: 1.0
++            });
 +            let scale = new Gtk.HScale({
-+            digits:0,
-+            adjustment: adjustment,
-+            value_pos: Gtk.PositionType.RIGHT
-+        });
++                digits:0,
++                adjustment: adjustment,
++                value_pos: Gtk.PositionType.RIGHT
++            });
 +            scale.set_value(config.get_int("icon-size"));
 +
 +            let hbox = new Gtk.Box({
-+            orientation: Gtk.Orientation.HORIZONTAL,
-+            spacing: 20
++                orientation: Gtk.Orientation.HORIZONTAL,
++                spacing: 20
 +            });
-+            hbox.add(new Gtk.Label({ label: "Icon size:		", use_markup: true,
-+                halign: Gtk.Align.START }));
++            hbox.add(new Gtk.Label({
++                label: "Icon size:",
++                use_markup: true,
++                halign: Gtk.Align.START
++            }));
 +            hbox.pack_end(scale, true, true, 0);
 +            this.add(hbox);
 +            scale.connect('value-changed', function(sw) {
-+            var newval = sw.get_value();
-+            var oldval = config.get_int("icon-size");
-+            let max=config.get_int("panel-height")-8;
-+            if(max<8)
-+            	max=8;
-+            if (newval != oldval) {
-+                config.set_int("icon-size",newval);
-+            }
-+        });
++                var newval = sw.get_value();
++                var oldval = config.get_int("icon-size");
++                let max=config.get_int("panel-height")-8;
++                if (max<8)
++                    max=8;
++                if (newval != oldval) {
++                    config.set_int("icon-size",newval);
++                }
++            });
 +        }
 +        {
-+        	let color = new Gtk.ColorButton();
-+        	color.use_alpha = 1;
-+        	let rgba = new Gdk.RGBA();
-+        	rgba.parse(config.get_string("panel-color"));
-+        	color.set_rgba(rgba);
-+        	let hbox = new Gtk.Box({
-+            orientation: Gtk.Orientation.HORIZONTAL,
-+            spacing: 20
++            let color = new Gtk.ColorButton();
++            color.use_alpha = 1;
++            let rgba = new Gdk.RGBA();
++            rgba.parse(config.get_string("panel-color"));
++            color.set_rgba(rgba);
++            let hbox = new Gtk.Box({
++                orientation: Gtk.Orientation.HORIZONTAL,
++                spacing: 20
 +            });
-+            hbox.add(new Gtk.Label({ label: "Panel color:	", use_markup: true,
-+                halign: Gtk.Align.START }));
++            hbox.add(new Gtk.Label({ label: "Panel color:", use_markup: true,
++                  halign: Gtk.Align.START }));
 +            hbox.add(color);
-+        	this.add(hbox);
++            this.add(hbox);
 +            color.connect('color-set', function(sw) {
-+            config.set_string("panel-color",sw.rgba.to_string());
++                config.set_string("panel-color",sw.rgba.to_string());
 +            });
 +        }
      }

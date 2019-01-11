@@ -1,5 +1,5 @@
---- extension.js	2018-10-17 17:08:16.739094080 +0300
-+++ extension.js.new	2018-10-17 17:06:24.959540900 +0300
+--- extension.js	2019-01-10 23:37:38.158900042 -0800
++++ extension.js.new	2019-01-11 21:26:15.156297791 -0800
 @@ -18,7 +18,12 @@
  const Gettext = imports.gettext.domain('gnome-shell-extensions');
  const _ = Gettext.gettext;
@@ -72,54 +72,20 @@
                                    child: app.create_icon_texture(ICON_TEXTURE_SIZE) });
          this._multiWindowTitle.add(this._icon);
  
-@@ -761,6 +790,41 @@
+@@ -754,6 +783,7 @@
      }
  };
  
-+function enablePanel(bEnable){
-+/*    for(var propertyName in global.display) {
-+                global.log(propertyName);
-+            }*/
-+
-+  if(bEnable){
-+   
-+   Main.panel._centerBox.remove_actor(clock);
-+   clock.set_parent(Main.panel._rightBox);
-+   //Main.panel.actor.remove_actor(Main.panel._leftBox);
-+   Main.panel._centerBox.remove_actor(clock);
-+   Main.panel.actor.remove_actor(Main.panel._centerBox);
-+   Main.panel.actor.remove_actor(Main.panel._rightBox);
-+   Main.panel.actor.height = Convenience.getSettings().get_int('panel-height');
-+   Main.panel.actor.set_opacity(0);
-+   gbox.add_actor(Main.panel._rightBox);
-+   gbox.add_actor(Main.panel._centerBox);
-+  }
-+  else{
-+   Main.panel._rightBox.remove_actor(clock);
-+   clock.set_parent(Main.panel._centerBox);
-+   gbox.remove_actor(Main.panel._centerBox);
-+   gbox.remove_actor(Main.panel._rightBox);
-+   Main.panel.actor.height = panelh;
-+   Main.panel.actor.set_opacity(panelOpacity);
-+   //Main.panel.actor.add_actor(Main.panel._leftBox);
-+   Main.panel.actor.add_actor(Main.panel._centerBox);
-+   Main.panel.actor.add_actor(Main.panel._rightBox);
-+  }
-+    let windows = global.get_window_actors();
-+    for (let i = 0; i < windows.length; i++)
-+            windows[i].metaWindow.notify('gtk-application-id');
-+}
-+
 +
  class WindowList {
      constructor(perMonitor, monitor) {
          this._perMonitor = perMonitor;
-@@ -774,10 +838,14 @@
+@@ -767,10 +797,14 @@
          this.actor.connect('destroy', this._onDestroy.bind(this));
  
          let box = new St.BoxLayout({ x_expand: true, y_expand: true });
 +        gbox=box;
-+	clock = Main.panel._centerBox.get_children()[0];
++	      clock = Main.panel._centerBox.get_children()[0];
 +        panelh=Main.panel.actor.height;
 +        panelOpacity=Main.panel.actor.get_opacity()
          this.actor.add_actor(box);
@@ -130,46 +96,27 @@
                                             reactive: true,
                                             layout_manager: layout,
                                             x_align: Clutter.ActorAlign.START,
-@@ -789,10 +857,14 @@
+@@ -782,6 +816,9 @@
              let node = this._windowList.get_theme_node();
              let spacing = node.get_length('spacing');
              this._windowList.layout_manager.spacing = spacing;
 +                if(!bAdded){
 +                  bAdded=1;
-+                  enablePanel(1);
 +                }
          });
          this._windowList.connect('scroll-event', this._onScrollEvent.bind(this));
  
--        let indicatorsBox = new St.BoxLayout({ x_align: Clutter.ActorAlign.END });
-+        let indicatorsBox = new St.BoxLayout({ x_align: Clutter.ActorAlign.END, visible: false });
-         box.add(indicatorsBox);
- 
-         this._workspaceIndicator = new WorkspaceIndicator();
-@@ -854,17 +926,22 @@
-             Main.overview.connect('showing', () => {
-                 this.actor.hide();
-                 this._updateKeyboardAnchor();
-+                enablePanel(0);
-             });
- 
-         this._overviewHidingId =
-             Main.overview.connect('hiding', () => {
-                 this.actor.visible = !Main.layoutManager.primaryMonitor.inFullscreen;
-                 this._updateKeyboardAnchor();
-+                enablePanel(1);
-             });
- 
+@@ -858,6 +895,9 @@
          this._fullscreenChangedId =
-             global.display.connect('in-fullscreen-changed', () => {
+             global.screen.connect('in-fullscreen-changed', () => {
                  this._updateKeyboardAnchor();
 +                let windows = global.get_window_actors();
-+    for (let i = 0; i < windows.length; i++)
-+            windows[i].metaWindow.notify('gtk-application-id');
++                for (let i = 0; i < windows.length; i++)
++                    windows[i].metaWindow.notify('gtk-application-id');
              });
  
          this._dragBeginId =
-@@ -886,6 +963,18 @@
+@@ -879,6 +919,18 @@
                                     this._groupingModeChanged.bind(this));
          this._grouped = undefined;
          this._groupingModeChanged();
@@ -187,17 +134,8 @@
 +        this._panelColorChanged();
      }
  
-     _onScrollEvent(actor, event) {
-@@ -908,7 +997,7 @@
- 
-     _updatePosition() {
-         this.actor.set_position(this._monitor.x,
--                                this._monitor.y + this._monitor.height - this.actor.height);
-+                                this._monitor.y /*+ this._monitor.height - this.actor.height*/);
-     }
- 
-     _updateWorkspaceIndicatorVisibility() {
-@@ -956,6 +1045,30 @@
+     _getDynamicWorkspacesSettings() {
+@@ -966,6 +1018,30 @@
          }
      }
  
@@ -228,14 +166,13 @@
      _checkGrouping() {
          if (this._groupingMode != GroupingMode.AUTO)
              return;
-@@ -1149,6 +1262,10 @@
+@@ -1163,6 +1239,9 @@
      }
  
      _onDestroy() {
 +        if(gbox){
-+          enablePanel(0);
 +          bAdded=0;
 +        }
-         this._mutterSettings.disconnect(this._workspacesOnlyOnPrimaryChangedId);
-         this._mutterSettings.disconnect(this._dynamicWorkspacesChangedId);
+         this._workspaceSettings.disconnect(this._workspacesOnlyOnPrimaryChangedId);
+         this._dynamicWorkspacesSettings.disconnect(this._dynamicWorkspacesChangedId);
  
