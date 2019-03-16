@@ -1,6 +1,6 @@
---- extension.js	2018-10-17 17:08:16.739094080 +0300
-+++ extension.js.new	2018-10-17 17:06:24.959540900 +0300
-@@ -18,7 +18,12 @@
+--- extension.js	2019-03-12 02:05:45.000000000 +0300
++++ extension.js.new	2019-03-16 10:29:16.750076000 +0300
+@@ -12,7 +12,12 @@
  const Gettext = imports.gettext.domain('gnome-shell-extensions');
  const _ = Gettext.gettext;
  
@@ -14,9 +14,9 @@
  const DND_ACTIVATE_TIMEOUT = 500;
  
  const GroupingMode = {
-@@ -146,7 +151,8 @@
-         this.actor = new St.BoxLayout({ style_class: 'window-button-box',
-                                         x_expand: true, y_expand: true });
+@@ -140,7 +145,8 @@
+             y_expand: true
+         });
  
 -        this._icon = new St.Bin({ style_class: 'window-button-icon' });
 +        this._icon = new St.Bin({ //style_class: 'window-button-icon' 
@@ -24,7 +24,7 @@
          this.actor.add(this._icon);
          this.label_actor = new St.Label({ y_align: Clutter.ActorAlign.CENTER });
          this.actor.add(this.label_actor);
-@@ -172,6 +178,30 @@
+@@ -166,6 +172,30 @@
              this._metaWindow.connect('notify::minimized',
                                       this._minimizedChanged.bind(this));
          this._minimizedChanged();
@@ -55,26 +55,26 @@
      }
  
      _minimizedChanged() {
-@@ -223,7 +253,6 @@
-                                      button_mask: St.ButtonMask.ONE |
-                                                   St.ButtonMask.THREE });
+@@ -220,7 +250,6 @@
+             button_mask: St.ButtonMask.ONE | St.ButtonMask.THREE
+         });
          this.actor._delegate = this;
 -
          this.actor.connect('allocation-changed',
                             this._updateIconGeometry.bind(this));
          this.actor.connect('clicked', this._onClicked.bind(this));
 @@ -478,7 +507,7 @@
-                                                     x_expand: true });
          stack.add_actor(this._multiWindowTitle);
  
--        this._icon = new St.Bin({ style_class: 'window-button-icon',
-+        this._icon = new St.Bin({ //style_class: 'window-button-icon',
-                                   child: app.create_icon_texture(ICON_TEXTURE_SIZE) });
+         this._icon = new St.Bin({
+-            style_class: 'window-button-icon',
++            //style_class: 'window-button-icon',
+             child: app.create_icon_texture(ICON_TEXTURE_SIZE)
+         });
          this._multiWindowTitle.add(this._icon);
- 
-@@ -761,6 +790,41 @@
+@@ -770,6 +799,41 @@
      }
- };
+ });
  
 +function enablePanel(bEnable){
 +/*    for(var propertyName in global.display) {
@@ -89,7 +89,7 @@
 +   Main.panel._centerBox.remove_actor(clock);
 +   Main.panel.actor.remove_actor(Main.panel._centerBox);
 +   Main.panel.actor.remove_actor(Main.panel._rightBox);
-+   Main.panel.actor.height = Convenience.getSettings().get_int('panel-height');
++   Main.panel.actor.height = ExtensionUtils.getSettings().get_int('panel-height');
 +   Main.panel.actor.set_opacity(0);
 +   gbox.add_actor(Main.panel._rightBox);
 +   gbox.add_actor(Main.panel._centerBox);
@@ -114,23 +114,25 @@
  class WindowList {
      constructor(perMonitor, monitor) {
          this._perMonitor = perMonitor;
-@@ -774,10 +838,14 @@
+@@ -785,11 +849,15 @@
          this.actor.connect('destroy', this._onDestroy.bind(this));
  
          let box = new St.BoxLayout({ x_expand: true, y_expand: true });
+-        this.actor.add_actor(box);
+ 
++        this.actor.add_actor(box);
 +        gbox=box;
-+	clock = Main.panel._centerBox.get_children()[0];
++        clock = Main.panel._centerBox.get_children()[0];
 +        panelh=Main.panel.actor.height;
 +        panelOpacity=Main.panel.actor.get_opacity()
-         this.actor.add_actor(box);
- 
          let layout = new Clutter.BoxLayout({ homogeneous: true });
--        this._windowList = new St.Widget({ style_class: 'window-list',
-+        this._windowList = new St.Widget({ //style_class: 'window-list',
-                                            reactive: true,
-                                            layout_manager: layout,
-                                            x_align: Clutter.ActorAlign.START,
-@@ -789,10 +857,14 @@
+         this._windowList = new St.Widget({
+-            style_class: 'window-list',
++            //style_class: 'window-list',
+             reactive: true,
+             layout_manager: layout,
+             x_align: Clutter.ActorAlign.START,
+@@ -802,10 +870,14 @@
              let node = this._windowList.get_theme_node();
              let spacing = node.get_length('spacing');
              this._windowList.layout_manager.spacing = spacing;
@@ -146,7 +148,7 @@
          box.add(indicatorsBox);
  
          this._workspaceIndicator = new WorkspaceIndicator();
-@@ -854,17 +926,22 @@
+@@ -869,17 +941,22 @@
              Main.overview.connect('showing', () => {
                  this.actor.hide();
                  this._updateKeyboardAnchor();
@@ -169,7 +171,7 @@
              });
  
          this._dragBeginId =
-@@ -886,6 +963,18 @@
+@@ -901,6 +978,18 @@
                                     this._groupingModeChanged.bind(this));
          this._grouped = undefined;
          this._groupingModeChanged();
@@ -188,7 +190,7 @@
      }
  
      _onScrollEvent(actor, event) {
-@@ -908,7 +997,7 @@
+@@ -923,7 +1012,7 @@
  
      _updatePosition() {
          this.actor.set_position(this._monitor.x,
@@ -197,7 +199,7 @@
      }
  
      _updateWorkspaceIndicatorVisibility() {
-@@ -956,6 +1045,30 @@
+@@ -971,6 +1060,30 @@
          }
      }
  
@@ -228,7 +230,7 @@
      _checkGrouping() {
          if (this._groupingMode != GroupingMode.AUTO)
              return;
-@@ -1149,6 +1262,10 @@
+@@ -1164,6 +1277,10 @@
      }
  
      _onDestroy() {
