@@ -1,6 +1,6 @@
---- extension.js	2019-03-12 02:05:45.000000000 +0300
-+++ extension.js.new	2019-03-16 10:29:16.750076000 +0300
-@@ -12,7 +12,12 @@
+--- extension.js	2019-09-13 12:09:17.000000000 +0300
++++ extension.js.new	2019-09-22 00:03:55.012532985 +0300
+@@ -14,7 +14,12 @@
  const Gettext = imports.gettext.domain('gnome-shell-extensions');
  const _ = Gettext.gettext;
  
@@ -14,19 +14,18 @@
  const DND_ACTIVATE_TIMEOUT = 500;
  
  const GroupingMode = {
-@@ -140,7 +145,8 @@
-             y_expand: true
+@@ -144,7 +149,7 @@
+             y_expand: true,
          });
  
 -        this._icon = new St.Bin({ style_class: 'window-button-icon' });
-+        this._icon = new St.Bin({ //style_class: 'window-button-icon' 
-+    });
-         this.actor.add(this._icon);
++        this._icon = new St.Bin({}); //style_class: 'window-button-icon' });
+         this.add(this._icon);
          this.label_actor = new St.Label({ y_align: Clutter.ActorAlign.CENTER });
-         this.actor.add(this.label_actor);
-@@ -166,6 +172,30 @@
-             this._metaWindow.connect('notify::minimized',
-                                      this._minimizedChanged.bind(this));
+         this.add(this.label_actor);
+@@ -165,6 +170,30 @@
+         this._notifyMinimizedId = this._metaWindow.connect(
+             'notify::minimized', this._minimizedChanged.bind(this));
          this._minimizedChanged();
 +        this._notifyUrgentId =
 +            this._metaWindow.connect('notify::urgent',
@@ -55,24 +54,7 @@
      }
  
      _minimizedChanged() {
-@@ -220,7 +250,6 @@
-             button_mask: St.ButtonMask.ONE | St.ButtonMask.THREE
-         });
-         this.actor._delegate = this;
--
-         this.actor.connect('allocation-changed',
-                            this._updateIconGeometry.bind(this));
-         this.actor.connect('clicked', this._onClicked.bind(this));
-@@ -478,7 +507,7 @@
-         stack.add_actor(this._multiWindowTitle);
- 
-         this._icon = new St.Bin({
--            style_class: 'window-button-icon',
-+            //style_class: 'window-button-icon',
-             child: app.create_icon_texture(ICON_TEXTURE_SIZE)
-         });
-         this._multiWindowTitle.add(this._icon);
-@@ -770,6 +799,41 @@
+@@ -671,6 +700,40 @@
      }
  });
  
@@ -110,16 +92,14 @@
 +            windows[i].metaWindow.notify('gtk-application-id');
 +}
 +
-+
- class WindowList {
-     constructor(perMonitor, monitor) {
-         this._perMonitor = perMonitor;
-@@ -785,11 +849,15 @@
-         this.actor.connect('destroy', this._onDestroy.bind(this));
  
-         let box = new St.BoxLayout({ x_expand: true, y_expand: true });
--        this.actor.add_actor(box);
+ const WindowList = GObject.registerClass({
+     GTypeName: 'WindowListWindowList',
+@@ -696,10 +759,14 @@
  
+         toggle.connect('notify::checked',
+             this._updateWindowListVisibility.bind(this));
+-
 +        this.actor.add_actor(box);
 +        gbox=box;
 +        clock = Main.panel._centerBox.get_children()[0];
@@ -132,14 +112,14 @@
              reactive: true,
              layout_manager: layout,
              x_align: Clutter.ActorAlign.START,
-@@ -802,10 +870,14 @@
+@@ -712,10 +779,14 @@
              let node = this._windowList.get_theme_node();
              let spacing = node.get_length('spacing');
              this._windowList.layout_manager.spacing = spacing;
-+                if(!bAdded){
-+                  bAdded=1;
-+                  enablePanel(1);
-+                }
++            if(!bAdded){
++               bAdded=1;
++               enablePanel(1);
++            }
          });
          this._windowList.connect('scroll-event', this._onScrollEvent.bind(this));
  
@@ -148,19 +128,18 @@
          box.add(indicatorsBox);
  
          this._workspaceIndicator = new WorkspaceIndicator();
-@@ -869,17 +941,22 @@
-             Main.overview.connect('showing', () => {
-                 this.actor.hide();
-                 this._updateKeyboardAnchor();
-+                enablePanel(0);
-             });
+@@ -777,16 +848,21 @@
+         this._overviewShowingId = Main.overview.connect('showing', () => {
+             this.hide();
+             this._updateKeyboardAnchor();
++            enablePanel(0);
+         });
  
-         this._overviewHidingId =
-             Main.overview.connect('hiding', () => {
-                 this.actor.visible = !Main.layoutManager.primaryMonitor.inFullscreen;
-                 this._updateKeyboardAnchor();
-+                enablePanel(1);
-             });
+         this._overviewHidingId = Main.overview.connect('hiding', () => {
+             this.visible = !Main.layoutManager.primaryMonitor.inFullscreen;
+             this._updateKeyboardAnchor();
++            enablePanel(1);
+         });
  
          this._fullscreenChangedId =
              global.display.connect('in-fullscreen-changed', () => {
@@ -170,9 +149,9 @@
 +            windows[i].metaWindow.notify('gtk-application-id');
              });
  
-         this._dragBeginId =
-@@ -901,6 +978,18 @@
-                                    this._groupingModeChanged.bind(this));
+         this._dragBeginId = Main.xdndHandler.connect('drag-begin',
+@@ -805,6 +881,18 @@
+             'changed::grouping-mode', this._groupingModeChanged.bind(this));
          this._grouped = undefined;
          this._groupingModeChanged();
 +        this._settings.connect('changed::font-size',
@@ -190,16 +169,16 @@
      }
  
      _onScrollEvent(actor, event) {
-@@ -923,7 +1012,7 @@
- 
+@@ -827,7 +915,7 @@
      _updatePosition() {
-         this.actor.set_position(this._monitor.x,
--                                this._monitor.y + this._monitor.height - this.actor.height);
-+                                this._monitor.y /*+ this._monitor.height - this.actor.height*/);
+         this.set_position(
+             this._monitor.x,
+-            this._monitor.y + this._monitor.height - this.height);
++            this._monitor.y /*+ this._monitor.height - this.height*/);
      }
  
      _updateWorkspaceIndicatorVisibility() {
-@@ -971,6 +1060,30 @@
+@@ -888,6 +976,30 @@
          }
      }
  
@@ -228,9 +207,9 @@
 +    }
 +
      _checkGrouping() {
-         if (this._groupingMode != GroupingMode.AUTO)
+         if (this._groupingMode !== GroupingMode.AUTO)
              return;
-@@ -1164,6 +1277,10 @@
+@@ -1079,6 +1191,10 @@
      }
  
      _onDestroy() {

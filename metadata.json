@@ -4,7 +4,7 @@
   "name": "Window List Mod", 
   "settings-schema": "org.gnome.shell.extensions.window-list-mod", 
   "shell-version": [
-    "3.32"
+    "3.34"
   ], 
   "url": "https://github.com/Vityacv/window-list-mod", 
   "uuid": "window-list-mod@vagonpop.gmail.com", 
