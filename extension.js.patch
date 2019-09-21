@@ -1,5 +1,5 @@
 --- extension.js	2019-09-13 12:09:17.000000000 +0300
-+++ extension.js.new	2019-09-22 00:03:55.012532985 +0300
++++ extension.js.new	2019-09-22 00:35:01.854853632 +0300
 @@ -14,7 +14,12 @@
  const Gettext = imports.gettext.domain('gnome-shell-extensions');
  const _ = Gettext.gettext;
@@ -14,6 +14,15 @@
  const DND_ACTIVATE_TIMEOUT = 500;
  
  const GroupingMode = {
+@@ -61,7 +66,7 @@
+ 
+ class WindowContextMenu extends PopupMenu.PopupMenu {
+     constructor(source, metaWindow) {
+-        super(source, 0.5, St.Side.BOTTOM);
++        super(source, 0.5, St.Side.TOP);
+ 
+         this._metaWindow = metaWindow;
+ 
 @@ -144,7 +149,7 @@
              y_expand: true,
          });
@@ -54,6 +63,24 @@
      }
  
      _minimizedChanged() {
+@@ -424,7 +453,7 @@
+ 
+ class AppContextMenu extends PopupMenu.PopupMenu {
+     constructor(source) {
+-        super(source, 0.5, St.Side.BOTTOM);
++        super(source, 0.5, St.Side.TOP);
+ 
+         this._appButton = source;
+ 
+@@ -519,7 +548,7 @@
+         this._multiWindowTitle.label_actor = label;
+ 
+         this._menuManager = new PopupMenu.PopupMenuManager(this);
+-        this._menu = new PopupMenu.PopupMenu(this, 0.5, St.Side.BOTTOM);
++        this._menu = new PopupMenu.PopupMenu(this, 0.5, St.Side.TOP);
+         this._menu.connect('open-state-changed', _onMenuStateChanged);
+         this._menu.actor.hide();
+         this._menu.connect('activate', this._onMenuActivate.bind(this));
 @@ -671,6 +700,40 @@
      }
  });
