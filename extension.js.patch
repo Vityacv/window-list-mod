@@ -1,5 +1,5 @@
 --- extension.js	2019-09-13 12:09:17.000000000 +0300
-+++ extension.js.new	2019-09-22 02:08:15.611123248 +0300
++++ extension.js.new	2019-09-22 03:25:15.877605283 +0300
 @@ -14,7 +14,12 @@
  const Gettext = imports.gettext.domain('gnome-shell-extensions');
  const _ = Gettext.gettext;
@@ -81,17 +81,13 @@
          this._menu.connect('open-state-changed', _onMenuStateChanged);
          this._menu.actor.hide();
          this._menu.connect('activate', this._onMenuActivate.bind(this));
-@@ -671,6 +700,42 @@
+@@ -671,6 +700,38 @@
      }
  });
  
 +function enablePanel(bEnable){
 +    if(gbox === 0)
 +        return
-+/*    for(var propertyName in global.display) {
-+                global.log(propertyName);
-+            }*/
-+
 +  if(bEnable){
 +   
 +   Main.panel._centerBox.remove_actor(clock);
@@ -124,15 +120,16 @@
  
  const WindowList = GObject.registerClass({
      GTypeName: 'WindowListWindowList',
-@@ -696,10 +761,15 @@
+@@ -696,10 +757,16 @@
  
          toggle.connect('notify::checked',
              this._updateWindowListVisibility.bind(this));
 -
 +        this.actor.add_actor(box);
-+        if(Main.layoutManager.primaryMonitor === this._monitor)
++        if(Main.layoutManager.primaryMonitor === this._monitor){
 +            gbox=box;
-+        clock = Main.panel._centerBox.get_children()[0];
++            clock = Main.panel._centerBox.get_children()[0];
++        }
 +        panelh=Main.panel.actor.height;
 +        panelOpacity=Main.panel.actor.get_opacity()
          let layout = new Clutter.BoxLayout({ homogeneous: true });
@@ -142,11 +139,11 @@
              reactive: true,
              layout_manager: layout,
              x_align: Clutter.ActorAlign.START,
-@@ -712,10 +782,14 @@
+@@ -712,10 +779,14 @@
              let node = this._windowList.get_theme_node();
              let spacing = node.get_length('spacing');
              this._windowList.layout_manager.spacing = spacing;
-+            if(Main.layoutManager.primaryMonitor === this._monitor && !bAdded){
++            if(Main.layoutManager.primaryMonitor === this._monitor && bAdded===0){
 +               bAdded=1;
 +               enablePanel(1);
 +            }
@@ -158,7 +155,7 @@
          box.add(indicatorsBox);
  
          this._workspaceIndicator = new WorkspaceIndicator();
-@@ -777,16 +851,23 @@
+@@ -777,16 +848,23 @@
          this._overviewShowingId = Main.overview.connect('showing', () => {
              this.hide();
              this._updateKeyboardAnchor();
@@ -182,7 +179,7 @@
              });
  
          this._dragBeginId = Main.xdndHandler.connect('drag-begin',
-@@ -805,6 +886,18 @@
+@@ -805,6 +883,18 @@
              'changed::grouping-mode', this._groupingModeChanged.bind(this));
          this._grouped = undefined;
          this._groupingModeChanged();
@@ -201,7 +198,7 @@
      }
  
      _onScrollEvent(actor, event) {
-@@ -827,7 +920,7 @@
+@@ -827,7 +917,7 @@
      _updatePosition() {
          this.set_position(
              this._monitor.x,
@@ -210,7 +207,7 @@
      }
  
      _updateWorkspaceIndicatorVisibility() {
-@@ -888,6 +981,30 @@
+@@ -888,6 +978,30 @@
          }
      }
  
@@ -241,19 +238,22 @@
      _checkGrouping() {
          if (this._groupingMode !== GroupingMode.AUTO)
              return;
-@@ -1079,6 +1196,11 @@
+@@ -1079,6 +1193,14 @@
      }
  
      _onDestroy() {
 +        if(gbox){
-+          if(Main.layoutManager.primaryMonitor === this._monitor)
-+            enablePanel(0);
-+          bAdded=0;
++          if(Main.layoutManager.primaryMonitor === this._monitor) {
++              enablePanel(0);
++              bAdded=0;
++              gbox = 0
++              clock = 0
++            }
 +        }
          this._mutterSettings.disconnect(this._workspacesOnlyOnPrimaryChangedId);
          this._mutterSettings.disconnect(this._dynamicWorkspacesChangedId);
  
-@@ -1145,15 +1267,25 @@
+@@ -1145,14 +1267,16 @@
      }
  
      _buildWindowLists() {
@@ -267,16 +267,7 @@
 -            if (showOnAllMonitors || monitor === Main.layoutManager.primaryMonitor)
 +            if (showOnAllMonitors || monitor === Main.layoutManager.primaryMonitor) {
                  this._windowLists.push(new WindowList(showOnAllMonitors, monitor));
-+                if(bAdded === 1) {
-+                    bAdded = 0
-+                    enablePanel(0);
-+                }
 +            }
          });
-+        if(bAdded === 0) {
-+          bAdded = 1
-+          enablePanel(1);
-+        }
      }
  
-     disable() {
